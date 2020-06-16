@@ -5,13 +5,23 @@ String host= "api.thingspeak.com";
 int puerto= 80;
 String uri = "/update?api_key=YIA2DIQKW9E22W1G&field1=";
 
+
+void setup(){
+  configurarESP8266();
+}
+
+void loop(){
+  enviarTemperaturaESP8266();
+}
+
+
 int configurarESP8266(void) {
   // inicio de comunicación serial de la ESP8266
   Serial.begin(115200);   //Se inicia la velocidad de transmision
   Serial.println("AT");   //Prueba si el sistema AT funciona correctamente
   delay(10);        // Espera a que la ESP8266 genere una respuesta
-  if (!Serial.find("OK")) 
-  return 1; //Retornando la ESP8266 en modo cliente
+  if (!Serial.find("OK")) //El comando AT devuelve OK, si la comunicación con el serial hubo inconveniente
+  return 1; //Retorna el valor de 1
     
   // Conectando al Wifi
   //AT+CWJAP: Comando de la ESP8266 para conectar al AP(Punto de Acceso)
@@ -22,13 +32,13 @@ int configurarESP8266(void) {
   delay(10);        // Espera a que la ESP8266 genere una respuesta
  
   if (!Serial.find("OK")) 
-  return 2; //Retornando la ESP8266 en modo host
+  return 2; //Si hubo inconveniente en la comunición al conectar al AP retorna 2
   
   // Iniciando conexión TCP
   Serial.println("AT+CIPSTART=\"TCP\",\"" + host + "\"," + puerto);
   delay(50);        // Espera a que la ESP8266 genere una respuesta
   if (!Serial.find("OK")) 
-  return 3; //Retornando la ESP8266 en modo Dual Host y cliente
+  return 3; //Si hubo error al iniciar la conexión TCP retorna el valor de 3
   
   return 0;
 }
@@ -49,16 +59,10 @@ void enviarTemperaturaESP8266(void) {
   // Enviando la Construcción HTTP
   Serial.print(paqueteHTTP);
   delay(10); // Espera a que la ESP8266 genere una respuesta
-  if (!Serial.find("SEND OK\r\n")) return;
+  if (!Serial.find("SEND OK\r\n")) 
+  return;
   
   
 }
 
-void setup(){
-  configurarESP8266();
-}
-
-void loop(){
-  enviarTemperaturaESP8266();
-}
 
